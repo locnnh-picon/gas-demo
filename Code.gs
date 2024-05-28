@@ -69,7 +69,7 @@ function updatePasswordToCalendar(caldr) {
             break;
           }
         }
-        const desc = (event.getDescription() || '') + `\n Password for box: ${boxPassword}` + `\n 詳細: ${boxDesc}`;
+        const desc = `ボックス解除パスワード: ${boxPassword}\n` + `詳細: ${boxDesc}\n` + (event.getDescription() || '');
         event.description = desc;
         if (!event.extendedProperties) {
           event.extendedProperties = { "private": { 'updatedPwdbox': 'true' } };
@@ -110,7 +110,7 @@ function getBoxSettingValuesFromSpeadsheet(calendarName) {
 }
 
 function insertEventChangeLog(calendarName, event) {
-  
+
   let logSheet = boxSpreadsheet.getSheetByName(currentLogSheetName);
   if(!logSheet){
 
@@ -136,7 +136,14 @@ function insertEventChangeLog(calendarName, event) {
     }
 
     let templateSheet = boxSpreadsheet.getSheetByName('log_template')
-    logSheet = boxSpreadsheet.insertSheet(currentLogSheetName, {template: templateSheet}).showSheet();
+    if(templateSheet){
+      logSheet = boxSpreadsheet.insertSheet(currentLogSheetName, {template: templateSheet});
+    }else{
+      logSheet = boxSpreadsheet.insertSheet(currentLogSheetName);
+      logSheet.appendRows([])
+      logSheet.appendRows(['#', '作成日', '予約対象日', '施設', 'イベント概要', '実行内容'])
+    }
+    logSheet.showSheet()
   }
   const logValues = logSheet.getDataRange().getValues();
   const lastRow = logValues[logSheet.getLastRow() - 1];
@@ -227,5 +234,3 @@ function getDayOfYear(targetDate) {
   const day = Math.floor(diff / oneDay);
   return day
 }
-
-
